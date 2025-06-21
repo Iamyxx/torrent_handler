@@ -70,7 +70,7 @@ Auto handle the torrent file in the download folder to keep the download folder 
 
 ## Configuration
 
-**Important**: All environment variables are now required. The application will show clear error messages if any are missing.
+**Important**: All environment variables are now required except for `TRANSMISSION_USERNAME` and `TRANSMISSION_PASSWORD`, which can be left empty if your Transmission instance does not require authentication.
 
 Create a `.env` file with the following variables:
 
@@ -84,14 +84,21 @@ PROCESSED_FOLDER=/path/to/processed/folder
 # Transmission RPC Configuration (REQUIRED)
 TRANSMISSION_HOST=localhost
 TRANSMISSION_PORT=9091
-TRANSMISSION_USERNAME=your_username
-TRANSMISSION_PASSWORD=your_password
+TRANSMISSION_USERNAME=your_username   # Leave empty if not required
+TRANSMISSION_PASSWORD=your_password   # Leave empty if not required
 
 # Transmission download directory (REQUIRED)
 TRANSMISSION_DOWNLOAD_DIR=/path/to/download/directory
 ```
 
-**Note**: The application will validate that the download folder exists and is accessible before starting.
+**Note**: If your Transmission server does not require a username or password, you can leave `TRANSMISSION_USERNAME` and `TRANSMISSION_PASSWORD` blank in your `.env` file:
+
+```bash
+TRANSMISSION_USERNAME=
+TRANSMISSION_PASSWORD=
+```
+
+The application will validate that the download folder exists and is accessible before starting.
 
 ## Usage
 

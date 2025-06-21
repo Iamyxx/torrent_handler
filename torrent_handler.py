@@ -89,9 +89,11 @@ def main():
         'PROCESSED_FOLDER': os.getenv('PROCESSED_FOLDER'),
         'TRANSMISSION_HOST': os.getenv('TRANSMISSION_HOST'),
         'TRANSMISSION_PORT': os.getenv('TRANSMISSION_PORT'),
-        'TRANSMISSION_USERNAME': os.getenv('TRANSMISSION_USERNAME'),
-        'TRANSMISSION_PASSWORD': os.getenv('TRANSMISSION_PASSWORD'),
         'TRANSMISSION_DOWNLOAD_DIR': os.getenv('TRANSMISSION_DOWNLOAD_DIR')
+    }
+    optional_env_vars = {
+        'TRANSMISSION_USERNAME': os.getenv('TRANSMISSION_USERNAME'),
+        'TRANSMISSION_PASSWORD': os.getenv('TRANSMISSION_PASSWORD')
     }
     
     # Check for missing required environment variables
@@ -107,8 +109,6 @@ def main():
         logger.error("   PROCESSED_FOLDER=/path/to/processed/folder")
         logger.error("   TRANSMISSION_HOST=localhost")
         logger.error("   TRANSMISSION_PORT=9091")
-        logger.error("   TRANSMISSION_USERNAME=your_username")
-        logger.error("   TRANSMISSION_PASSWORD=your_password")
         logger.error("   TRANSMISSION_DOWNLOAD_DIR=/path/to/download/directory")
         logger.error("")
         logger.error("You can copy env.example to .env and edit it with your settings.")
@@ -121,8 +121,8 @@ def main():
         'transmission': {
             'host': required_env_vars['TRANSMISSION_HOST'],
             'port': required_env_vars['TRANSMISSION_PORT'],  # Will convert to int after validation
-            'username': required_env_vars['TRANSMISSION_USERNAME'],
-            'password': required_env_vars['TRANSMISSION_PASSWORD'],
+            'username': optional_env_vars['TRANSMISSION_USERNAME'],
+            'password': optional_env_vars['TRANSMISSION_PASSWORD'],
             'download_dir': required_env_vars['TRANSMISSION_DOWNLOAD_DIR']
         }
     }
