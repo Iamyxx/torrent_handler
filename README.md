@@ -70,24 +70,28 @@ Auto handle the torrent file in the download folder to keep the download folder 
 
 ## Configuration
 
+**Important**: All environment variables are now required. The application will show clear error messages if any are missing.
+
 Create a `.env` file with the following variables:
 
 ```bash
-# Folder to monitor for new torrent files
-DOWNLOAD_FOLDER=/Users/xiangyao/Downloads
+# Folder to monitor for new torrent files (REQUIRED)
+DOWNLOAD_FOLDER=/path/to/download/folder
 
-# Folder to move processed torrent files
-PROCESSED_FOLDER=/Users/xiangyao/Downloads/processed_torrents
+# Folder to move processed torrent files (REQUIRED)
+PROCESSED_FOLDER=/path/to/processed/folder
 
-# Transmission RPC Configuration
+# Transmission RPC Configuration (REQUIRED)
 TRANSMISSION_HOST=localhost
 TRANSMISSION_PORT=9091
 TRANSMISSION_USERNAME=your_username
 TRANSMISSION_PASSWORD=your_password
 
-# Transmission download directory
-TRANSMISSION_DOWNLOAD_DIR=/Users/xiangyao/Downloads
+# Transmission download directory (REQUIRED)
+TRANSMISSION_DOWNLOAD_DIR=/path/to/download/directory
 ```
+
+**Note**: The application will validate that the download folder exists and is accessible before starting.
 
 ## Usage
 

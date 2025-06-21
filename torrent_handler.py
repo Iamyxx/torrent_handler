@@ -6,6 +6,7 @@ Torrent Handler - Automatically process torrent files and add them to Transmissi
 import os
 import time
 import logging
+import sys
 from pathlib import Path
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -82,18 +83,76 @@ class TorrentHandler(FileSystemEventHandler):
             logger.error(f"Error processing torrent file {torrent_path}: {e}")
 
 def main():
+    # Configuration validation
+    required_env_vars = {
+        'DOWNLOAD_FOLDER': os.getenv('DOWNLOAD_FOLDER'),
+        'PROCESSED_FOLDER': os.getenv('PROCESSED_FOLDER'),
+        'TRANSMISSION_HOST': os.getenv('TRANSMISSION_HOST'),
+        'TRANSMISSION_PORT': os.getenv('TRANSMISSION_PORT'),
+        'TRANSMISSION_USERNAME': os.getenv('TRANSMISSION_USERNAME'),
+        'TRANSMISSION_PASSWORD': os.getenv('TRANSMISSION_PASSWORD'),
+        'TRANSMISSION_DOWNLOAD_DIR': os.getenv('TRANSMISSION_DOWNLOAD_DIR')
+    }
+    
+    # Check for missing required environment variables
+    missing_vars = [var for var, value in required_env_vars.items() if not value]
+    
+    if missing_vars:
+        logger.error("❌ Missing required environment variables:")
+        for var in missing_vars:
+            logger.error(f"   - {var}")
+        logger.error("")
+        logger.error("Please create a .env file with the following variables:")
+        logger.error("   DOWNLOAD_FOLDER=/path/to/download/folder")
+        logger.error("   PROCESSED_FOLDER=/path/to/processed/folder")
+        logger.error("   TRANSMISSION_HOST=localhost")
+        logger.error("   TRANSMISSION_PORT=9091")
+        logger.error("   TRANSMISSION_USERNAME=your_username")
+        logger.error("   TRANSMISSION_PASSWORD=your_password")
+        logger.error("   TRANSMISSION_DOWNLOAD_DIR=/path/to/download/directory")
+        logger.error("")
+        logger.error("You can copy env.example to .env and edit it with your settings.")
+        sys.exit(1)
+    
     # Configuration
     config = {
-        'download_folder': os.getenv('DOWNLOAD_FOLDER', '/Users/xiangyao/Downloads'),
-        'processed_folder': os.getenv('PROCESSED_FOLDER', '/Users/xiangyao/Downloads/processed_torrents'),
+        'download_folder': required_env_vars['DOWNLOAD_FOLDER'],
+        'processed_folder': required_env_vars['PROCESSED_FOLDER'],
         'transmission': {
-            'host': os.getenv('TRANSMISSION_HOST', 'localhost'),
-            'port': int(os.getenv('TRANSMISSION_PORT', 9091)),
-            'username': os.getenv('TRANSMISSION_USERNAME'),
-            'password': os.getenv('TRANSMISSION_PASSWORD'),
-            'download_dir': os.getenv('TRANSMISSION_DOWNLOAD_DIR', '/Users/xiangyao/Downloads')
+            'host': required_env_vars['TRANSMISSION_HOST'],
+            'port': required_env_vars['TRANSMISSION_PORT'],  # Will convert to int after validation
+            'username': required_env_vars['TRANSMISSION_USERNAME'],
+            'password': required_env_vars['TRANSMISSION_PASSWORD'],
+            'download_dir': required_env_vars['TRANSMISSION_DOWNLOAD_DIR']
         }
     }
+    
+    # Type assertions for the type checker
+    assert config['download_folder'] is not None
+    assert config['processed_folder'] is not None
+    assert config['transmission']['host'] is not None
+    assert config['transmission']['port'] is not None
+    assert config['transmission']['username'] is not None
+    assert config['transmission']['password'] is not None
+    assert config['transmission']['download_dir'] is not None
+    
+    # Convert port to int after validation
+    config['transmission']['port'] = int(config['transmission']['port'])
+    
+    # Validate that folders exist
+    download_path = Path(config['download_folder'])
+    if not download_path.exists():
+        logger.error(f"❌ Download folder does not exist: {config['download_folder']}")
+        sys.exit(1)
+    
+    if not download_path.is_dir():
+        logger.error(f"❌ Download folder is not a directory: {config['download_folder']}")
+        sys.exit(1)
+    
+    logger.info(f"✅ Configuration validated successfully")
+    logger.info(f"📁 Monitoring folder: {config['download_folder']}")
+    logger.info(f"📁 Processed folder: {config['processed_folder']}")
+    logger.info(f"🔗 Transmission: {config['transmission']['host']}:{config['transmission']['port']}")
     
     # Create and start the file watcher
     event_handler = TorrentHandler(
@@ -106,7 +165,7 @@ def main():
     observer.schedule(event_handler, config['download_folder'], recursive=False)
     observer.start()
     
-    logger.info(f"Starting torrent handler. Monitoring: {config['download_folder']}")
+    logger.info(f"🚀 Starting torrent handler. Monitoring: {config['download_folder']}")
     
     try:
         while True:
